@@ -1,0 +1,13 @@
+Usage:
+
+	touchtex --help...................Print help page.
+	touchtex --set-template <path>....Set default location for your preamble.
+	touchtex --unset-template.........Set ksimsek preamble as default.
+	touchtex --set-editor <package>...Set default editor for your tex file.
+	touchtex --list-default...........View default preamble and editor info.
+	touchtex <file>...................Prepare a LaTeX directory, named 'file', with your preamble.
+	touchtex <file> --force...........Forcefully prepare a LaTeX directory, named 'file', with your preamble.
+	                                  (This will remove any existing directory with the provided name.)
+
+v0.1.2.
+Last modified ks 22 jan 2020.
