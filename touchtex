@@ -1,0 +1,137 @@
+#!/bin/bash
+
+version=0.1.2
+lastmod="Last modified ks 22 jan 2020."
+statement="Free to use, modify, distribute."
+
+whereami=$(dirname $0)
+origtemplatefile=$whereami/.touchtex.origtempfile
+templatefile=$whereami/.touchtex.tempfile
+
+if [ -z $(find ~ -name favorite_preamble_ksimsek) ]
+then
+	echo "You don't have any available templates now."
+else
+	echo $(find ~ -name favorite_preamble_ksimsek) > $origtemplatefile
+
+
+if [ -f $templatefile ]
+then
+	template=$(cat $templatefile)
+else
+	template=$(find ~ -name favorite_preamble_ksimsek)
+fi
+
+origeditorfile=$whereami/.touchtex.origeditorfile
+editorfile=$whereami/.touchtex.editorfile
+
+if [ -f $editorfile ]
+then
+	editor="$(cat $editorfile)"
+else
+	editor="xdg-open"
+fi
+
+case $1 in
+	--set-template|-t)
+		if [ -f $2 ]
+		then
+			echo $2 > $templatefile
+		else
+			echo "There is no such file. Please check the location."
+		fi
+		;;
+	--unset-template|-ut)
+		cat $origtemplatefile > $templatefile
+		echo "Template has been set to $(cat $templatefile)."
+		;;
+	--set-editor|-e)
+		if [ -z $(which $2) ]
+		then
+			echo "Editor does not exist."
+		else
+			echo $2 > $editorfile
+		fi
+		;;
+	--list-default|-l)
+		echo "Template:"
+		echo "	$(cat $templatefile)"
+		echo
+		echo "Editor:"
+		echo "	$(cat $editorfile)"
+		;;
+	--help|-h)
+		clear
+		echo "Usage:"
+		echo
+	       	echo "	touchtex --help...................Print help page."	
+		echo "	touchtex --set-template <path>....Set default location for your preamble."
+		echo "	touchtex --unset-template.........Set ksimsek preamble as default."
+		echo "	touchtex --set-editor <package>...Set default editor for your tex file."
+		echo "	touchtex --list-default...........View default preamble and editor info."
+		echo "	touchtex <file>...................Prepare a LaTeX directory, named 'file', with your preamble."
+		echo "	touchtex <file> --force...........Forcefully prepare a LaTeX directory, named 'file', with your preamble."
+	        echo "	                                  (This will remove any existing directory with the provided name.)"
+		echo
+		echo "v$version."
+		echo $lastmod
+		echo $statement
+		;;
+	shortlist)
+		echo --set-template --unset-template --set-editor --list-default --help
+		;;
+	--*)
+		echo "Unknown option."
+		echo
+		echo "Available options are:"
+		echo "	--help 					| -h"
+		echo "	--set-template /path/to/template 	| -t /path/to/template"
+		echo "	--set-editor <package> 			| -e <package>"
+		echo "	--list 					| -l"
+		;;
+	*)
+		if [ -z $1 ]
+		then
+			echo "Please provide a name."
+		else
+			if [ ! -z $2 ]
+			then
+				if [ $2 == "--force" ] || [ $2 == "-f" ]
+				then
+					echo "Deleting the existing directory $(pwd)/$1..."
+					rm -rf $1
+					echo "Preparing a fresh directory $(pwd)/$1..."
+
+					tex=$1/$1.tex
+					fig=$1/figures
+				
+					mkdir $1
+					mkdir $fig
+				
+					touch $tex
+					cat $template > $tex
+					$editor $tex
+				else
+					echo "Unknown option."	
+				fi
+			else
+				if [ -d $1/ ]
+				then
+					echo "Directory exists. Try another name or use force option."
+				else
+					tex=$1/$1.tex
+					fig=$1/figures
+		
+					mkdir $1
+					mkdir $fig
+			
+					touch $tex
+					cat $template > $tex
+					$editor $tex 
+				fi
+			fi
+		fi
+		;;	
+esac
+
+fi
